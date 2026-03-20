@@ -59,7 +59,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           if (selectedModel == null)
             Container(
               padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-              color: Colors.orange.withOpacity(0.1),
+              color: Colors.orange.withValues(alpha: 0.1),
               child: Row(
                 children: [
                   const Icon(Icons.warning_amber_rounded, color: Colors.orange),
@@ -152,7 +152,7 @@ class _ChatInput extends StatelessWidget {
         color: Theme.of(context).cardColor,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -5),
           ),

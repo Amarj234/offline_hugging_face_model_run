@@ -50,9 +50,10 @@ class DownloadService {
       );
       _tasks.remove(fileName);
     } catch (e) {
-      if (CancelToken.isCancel(e as DioException)) {
-        // Handle cancel
+      if (e is DioException && CancelToken.isCancel(e)) {
+        // Download was cancelled or paused
       } else {
+        _tasks.remove(fileName);
         rethrow;
       }
     }
