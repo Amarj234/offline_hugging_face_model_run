@@ -248,13 +248,17 @@ class FlutterLlamaPlugin : FlutterPlugin, MethodCallHandler, EventChannel.Stream
                 nativeGenerateStreamInit(prompt, temperature, topP, topK, maxTokens, repeatPenalty)
 
                 // Stream tokens one by one
+                var tokenCount = 0
                 while (!shouldStop) {
                     val token = nativeGenerateStreamNext()
                     if (token != null) {
+                        tokenCount++
+                        Log.d(TAG, "DEBUG: Token #$tokenCount: '$token'")
                         mainHandler.post {
                             eventSink?.success(token)
                         }
                     } else {
+                        Log.d(TAG, "DEBUG: Stream finished (null token). Total tokens: $tokenCount")
                         break
                     }
                 }
@@ -262,6 +266,7 @@ class FlutterLlamaPlugin : FlutterPlugin, MethodCallHandler, EventChannel.Stream
                 nativeGenerateStreamEnd()
 
                 mainHandler.post {
+                    Log.d(TAG, "DEBUG: Closing event sink")
                     eventSink?.endOfStream()
                 }
             } catch (e: Exception) {
