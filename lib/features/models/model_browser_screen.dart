@@ -65,7 +65,8 @@ class _ModelBrowserScreenState extends ConsumerState<ModelBrowserScreen>
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: const Text('EXPLORE MODELS'),
-        backgroundColor: (isDark ? AppTheme.background : Colors.white).withOpacity(0.8),
+        backgroundColor: (isDark ? AppTheme.background : Colors.white)
+            .withOpacity(0.8),
         bottom: TabBar(
           controller: _tabController,
           indicatorSize: TabBarIndicatorSize.label,
@@ -73,9 +74,15 @@ class _ModelBrowserScreenState extends ConsumerState<ModelBrowserScreen>
           indicatorColor: AppTheme.accentPrimary,
           unselectedLabelColor: isDark ? Colors.white38 : Colors.black38,
           labelColor: AppTheme.accentPrimary,
-          labelStyle: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1),
+          labelStyle: const TextStyle(
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1,
+          ),
           tabs: [
-            const Tab(text: 'LOCAL', icon: Icon(Icons.storage_rounded, size: 20)),
+            const Tab(
+              text: 'LOCAL',
+              icon: Icon(Icons.storage_rounded, size: 20),
+            ),
             Tab(
               text: 'DISCOVER',
               icon: Badge(
@@ -89,25 +96,31 @@ class _ModelBrowserScreenState extends ConsumerState<ModelBrowserScreen>
       ),
       body: Container(
         decoration: BoxDecoration(
-          gradient: isDark 
-            ? const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [AppTheme.background, Color(0xFF161B33)],
-              )
-            : null,
+          gradient: isDark
+              ? const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [AppTheme.background, Color(0xFF161B33)],
+                )
+              : null,
         ),
         child: Column(
           children: [
-            SizedBox(height: MediaQuery.of(context).padding.top + 104), // Space for AppBar + TabBar
+            SizedBox(
+              height: MediaQuery.of(context).padding.top + 125,
+            ), // Space for AppBar + TabBar
             if (activeDownloads.isNotEmpty)
               _ActiveDownloadsBanner(
                 downloads: activeDownloads,
                 onCancel: (fileName) {
-                  ref.read(activeDownloadsProvider.notifier).cancelDownload(fileName);
+                  ref
+                      .read(activeDownloadsProvider.notifier)
+                      .cancelDownload(fileName);
                 },
                 onDismiss: (fileName) {
-                  ref.read(activeDownloadsProvider.notifier).removeCompleted(fileName);
+                  ref
+                      .read(activeDownloadsProvider.notifier)
+                      .removeCompleted(fileName);
                 },
                 onSelect: (fileName) async {
                   await ref.read(localModelsProvider.notifier).refreshModels();
@@ -154,14 +167,11 @@ class _ModelBrowserScreenState extends ConsumerState<ModelBrowserScreen>
                     activeDownloads: activeDownloads,
                     onDownload: (model) => _showDownloadDialog(model),
                     onSelect: (model) {
-                      final file = localModels.firstWhere(
-                        (f) {
-                          final name = f.path.toLowerCase();
-                          final id = model.shortId.toLowerCase();
-                          return name.contains(id);
-                        },
-                        orElse: () => localModels.first,
-                      );
+                      final file = localModels.firstWhere((f) {
+                        final name = f.path.toLowerCase();
+                        final id = model.shortId.toLowerCase();
+                        return name.contains(id);
+                      }, orElse: () => localModels.first);
                       ref.read(selectedModelProvider.notifier).state = file;
                       Navigator.pop(context);
                     },
@@ -182,11 +192,17 @@ class _ModelBrowserScreenState extends ConsumerState<ModelBrowserScreen>
       builder: (context) => AlertDialog(
         backgroundColor: AppTheme.surface,
         title: const Text('Delete Model?'),
-        content: Text('Remove "$fileName" safely? This action cannot be undone.', style: const TextStyle(color: AppTheme.textSecondary)),
+        content: Text(
+          'Remove "$fileName" safely? This action cannot be undone.',
+          style: const TextStyle(color: AppTheme.textSecondary),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('KEEP', style: TextStyle(color: AppTheme.textSecondary)),
+            child: const Text(
+              'KEEP',
+              style: TextStyle(color: AppTheme.textSecondary),
+            ),
           ),
           ElevatedButton(
             onPressed: () {
@@ -216,11 +232,11 @@ class _ModelBrowserScreenState extends ConsumerState<ModelBrowserScreen>
       if (mounted) {
         showModalBottomSheet(
           context: context,
-          backgroundColor: Colors.transparent,
+          backgroundColor: const Color.fromARGB(255, 225, 237, 181),
           builder: (context) {
             return Container(
               decoration: const BoxDecoration(
-                color: AppTheme.surface,
+                color: const Color.fromARGB(255, 225, 237, 181),
                 borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
               ),
               child: Column(
@@ -230,13 +246,18 @@ class _ModelBrowserScreenState extends ConsumerState<ModelBrowserScreen>
                     margin: const EdgeInsets.symmetric(vertical: 12),
                     height: 4,
                     width: 40,
-                    decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(2)),
+                    decoration: BoxDecoration(
+                      color: Colors.white24,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(20),
                     child: Text(
                       'Select Quantization Version',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                   const Divider(height: 1, color: Colors.white10),
@@ -248,25 +269,46 @@ class _ModelBrowserScreenState extends ConsumerState<ModelBrowserScreen>
                       itemBuilder: (context, index) {
                         final fileName = files[index];
                         return ListTile(
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 4,
+                          ),
                           leading: Container(
                             padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(color: Colors.white.withOpacity(0.05), borderRadius: BorderRadius.circular(12)),
-                            child: const Icon(Icons.file_present_rounded, color: AppTheme.accentPrimary),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.05),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Icon(
+                              Icons.file_present_rounded,
+                              color: AppTheme.accentPrimary,
+                            ),
                           ),
-                          title: Text(fileName, style: const TextStyle(fontWeight: FontWeight.w500)),
-                          trailing: const Icon(Icons.download_rounded, color: AppTheme.accentPrimary),
+                          title: Text(
+                            fileName,
+                            style: const TextStyle(fontWeight: FontWeight.w500),
+                          ),
+                          trailing: const Icon(
+                            Icons.download_rounded,
+                            color: AppTheme.accentPrimary,
+                          ),
                           onTap: () {
-                            ref.read(activeDownloadsProvider.notifier).startDownload(
-                                  model.id,
-                                  fileName,
-                                );
+                            ref
+                                .read(activeDownloadsProvider.notifier)
+                                .startDownload(model.id, fileName);
                             Navigator.pop(context);
                             ScaffoldMessenger.of(this.context).showSnackBar(
                               SnackBar(
                                 behavior: SnackBarBehavior.floating,
-                                backgroundColor: AppTheme.accentPrimary,
-                                content: Text('Download initialized: $fileName'),
+                                backgroundColor: const Color.fromARGB(
+                                  255,
+                                  212,
+                                  0,
+                                  255,
+                                ),
+                                content: Text(
+                                  'Download initialized: $fileName',
+                                ),
                               ),
                             );
                           },
@@ -283,7 +325,10 @@ class _ModelBrowserScreenState extends ConsumerState<ModelBrowserScreen>
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(backgroundColor: Colors.redAccent, content: Text('Error: ${e.toString()}')),
+          SnackBar(
+            backgroundColor: Colors.redAccent,
+            content: Text('Error: ${e.toString()}'),
+          ),
         );
       }
     }
@@ -308,11 +353,23 @@ class _LocalModelsList extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.auto_awesome_motion_rounded, size: 80, color: Colors.white.withOpacity(0.1)),
+            Icon(
+              Icons.auto_awesome_motion_rounded,
+              size: 80,
+              color: Colors.white.withOpacity(0.1),
+            ),
             const SizedBox(height: 16),
-            Text('No models downloaded', style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppTheme.textSecondary)),
+            Text(
+              'No models downloaded',
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(color: AppTheme.textSecondary),
+            ),
             const SizedBox(height: 8),
-            const Text('Switch to Discover to find your first AI model!', style: TextStyle(color: Colors.white24, fontSize: 13)),
+            const Text(
+              'Switch to Discover to find your first AI model!',
+              style: TextStyle(color: Colors.white24, fontSize: 13),
+            ),
           ],
         ),
       );
@@ -329,7 +386,7 @@ class _LocalModelsList extends StatelessWidget {
         return Container(
           margin: const EdgeInsets.only(bottom: 12),
           decoration: BoxDecoration(
-            color: AppTheme.surface,
+            color: const Color.fromARGB(255, 225, 237, 181),
             borderRadius: BorderRadius.circular(24),
             border: Border.all(color: Colors.white.withOpacity(0.05)),
           ),
@@ -339,18 +396,32 @@ class _LocalModelsList extends StatelessWidget {
               width: 50,
               height: 50,
               decoration: BoxDecoration(
-                gradient: const LinearGradient(colors: [AppTheme.accentPrimary, AppTheme.accentSecondary]),
+                gradient: const LinearGradient(
+                  colors: [AppTheme.accentPrimary, AppTheme.accentSecondary],
+                ),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: const Icon(Icons.psychology_rounded, color: Colors.white),
             ),
-            title: Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            title: Text(
+              name,
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
             subtitle: Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: Text('$sizeMb MB • GGUF', style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
+              child: Text(
+                '$sizeMb MB • GGUF',
+                style: const TextStyle(
+                  color: AppTheme.textSecondary,
+                  fontSize: 12,
+                ),
+              ),
             ),
             trailing: IconButton(
-              icon: const Icon(Icons.delete_outline_rounded, color: Colors.redAccent),
+              icon: const Icon(
+                Icons.delete_outline_rounded,
+                color: Colors.redAccent,
+              ),
               onPressed: () => onDelete(file),
             ),
             onTap: () => onSelect(file),
@@ -387,7 +458,10 @@ class _DiscoverModelsList extends StatelessWidget {
           children: [
             const CircularProgressIndicator(color: AppTheme.accentPrimary),
             const SizedBox(height: 24),
-            Text('Searching HuggingFace...', style: TextStyle(color: AppTheme.textSecondary, letterSpacing: 1)),
+            Text(
+              'Searching HuggingFace...',
+              style: TextStyle(color: AppTheme.textSecondary, letterSpacing: 1),
+            ),
           ],
         ),
       );
@@ -402,13 +476,15 @@ class _DiscoverModelsList extends StatelessWidget {
           (f) => f.path.toLowerCase().contains(model.shortId.toLowerCase()),
         );
         final downloading = activeDownloads.values
-            .where((d) => d.modelId == model.id && !d.isCompleted && !d.isFailed)
+            .where(
+              (d) => d.modelId == model.id && !d.isCompleted && !d.isFailed,
+            )
             .toList();
 
         return Container(
           margin: const EdgeInsets.only(bottom: 12),
           decoration: BoxDecoration(
-            color: AppTheme.surface,
+            color: const Color.fromARGB(255, 225, 237, 181),
             borderRadius: BorderRadius.circular(24),
             border: Border.all(color: Colors.white.withOpacity(0.05)),
           ),
@@ -416,27 +492,70 @@ class _DiscoverModelsList extends StatelessWidget {
             children: [
               ListTile(
                 contentPadding: const EdgeInsets.all(16),
-                title: Text(model.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                title: Text(
+                  model.name,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 4),
-                    Text('by ${model.author}', style: const TextStyle(color: AppTheme.accentPrimary, fontSize: 12, fontWeight: FontWeight.w600)),
-                    Text('${model.downloads} downloads', style: const TextStyle(color: AppTheme.textSecondary, fontSize: 11)),
+                    Text(
+                      'by ${model.author}',
+                      style: const TextStyle(
+                        color: AppTheme.accentPrimary,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    Text(
+                      '${model.downloads} downloads',
+                      style: const TextStyle(
+                        color: AppTheme.textSecondary,
+                        fontSize: 11,
+                      ),
+                    ),
                   ],
                 ),
                 trailing: isDownloaded
                     ? Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(color: Colors.green.withOpacity(0.1), borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.green.withOpacity(0.2))),
-                        child: const Text('READY', style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 10)),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.green.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: Colors.green.withOpacity(0.2),
+                          ),
+                        ),
+                        child: const Text(
+                          'READY',
+                          style: TextStyle(
+                            color: Colors.green,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 10,
+                          ),
+                        ),
                       )
                     : downloading.isNotEmpty
-                        ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.accentPrimary))
-                        : IconButton(
-                            icon: const Icon(Icons.download_for_offline_rounded, color: AppTheme.accentPrimary, size: 28),
-                            onPressed: () => onDownload(model),
-                          ),
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: AppTheme.accentPrimary,
+                        ),
+                      )
+                    : IconButton(
+                        icon: const Icon(
+                          Icons.download_for_offline_rounded,
+                          color: AppTheme.accentPrimary,
+                          size: 28,
+                        ),
+                        onPressed: () => onDownload(model),
+                      ),
                 onTap: isDownloaded ? () => onSelect(model) : null,
               ),
               if (downloading.isNotEmpty)
@@ -490,7 +609,11 @@ class _ActiveDownloadsBanner extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(Icons.cloud_download_outlined, color: AppTheme.accentPrimary, size: 18),
+              const Icon(
+                Icons.cloud_download_outlined,
+                color: AppTheme.accentPrimary,
+                size: 18,
+              ),
               const SizedBox(width: 8),
               Text(
                 'LIVE DOWNLOADS',
@@ -504,12 +627,14 @@ class _ActiveDownloadsBanner extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          ...activeList.map((dl) => _DownloadTile(
-                download: dl,
-                onCancel: () => onCancel(dl.fileName),
-                onDismiss: () => onDismiss(dl.fileName),
-                onSelect: () => onSelect(dl.fileName),
-              )),
+          ...activeList.map(
+            (dl) => _DownloadTile(
+              download: dl,
+              onCancel: () => onCancel(dl.fileName),
+              onDismiss: () => onDismiss(dl.fileName),
+              onSelect: () => onSelect(dl.fileName),
+            ),
+          ),
         ],
       ),
     );
@@ -543,7 +668,10 @@ class _DownloadTile extends StatelessWidget {
               Expanded(
                 child: Text(
                   download.fileName,
-                  style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 13,
+                  ),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -551,15 +679,25 @@ class _DownloadTile extends StatelessWidget {
                 TextButton(
                   onPressed: onSelect,
                   style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 0,
+                    ),
                     backgroundColor: AppTheme.accentPrimary.withOpacity(0.1),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
-                  child: const Text('SELECT', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                  child: const Text(
+                    'SELECT',
+                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                  ),
                 ),
               IconButton(
                 icon: Icon(
-                  isDone || isError ? Icons.close_rounded : Icons.cancel_rounded,
+                  isDone || isError
+                      ? Icons.close_rounded
+                      : Icons.cancel_rounded,
                   size: 18,
                   color: isError ? Colors.redAccent : AppTheme.textSecondary,
                 ),
@@ -579,7 +717,10 @@ class _DownloadTile extends StatelessWidget {
               ),
             ),
           if (isError)
-            const Text('Download failed. Check connection.', style: TextStyle(color: Colors.redAccent, fontSize: 10)),
+            const Text(
+              'Download failed. Check connection.',
+              style: TextStyle(color: Colors.redAccent, fontSize: 10),
+            ),
         ],
       ),
     );
