@@ -244,13 +244,16 @@ class FlutterLlamaPlugin : FlutterPlugin, MethodCallHandler, EventChannel.Stream
 
                 shouldStop = false
 
-                // Initialize streaming generation
+                Log.d(TAG, "DEBUG: Calling nativeGenerateStreamInit")
                 nativeGenerateStreamInit(prompt, temperature, topP, topK, maxTokens, repeatPenalty)
+                Log.d(TAG, "DEBUG: nativeGenerateStreamInit returned successfully")
 
                 // Stream tokens one by one
                 var tokenCount = 0
                 while (!shouldStop) {
+                    Log.d(TAG, "DEBUG: Calling nativeGenerateStreamNext (token #${tokenCount + 1})")
                     val token = nativeGenerateStreamNext()
+                    Log.d(TAG, "DEBUG: nativeGenerateStreamNext returned: '$token'")
                     if (token != null) {
                         tokenCount++
                         Log.d(TAG, "DEBUG: Token #$tokenCount: '$token'")

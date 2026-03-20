@@ -31,7 +31,7 @@ class LlamaService {
         nGpuLayers: 0,
         contextSize: 2048,
         batchSize: 512,
-        useGpu: true,
+        useGpu: false,
       ),
     );
 
