@@ -61,6 +61,22 @@ class _ModelBrowserScreenState extends ConsumerState<ModelBrowserScreen> {
               onDismiss: (fileName) {
                 ref.read(activeDownloadsProvider.notifier).removeCompleted(fileName);
               },
+              onSelect: (fileName) async {
+                await ref.read(localModelsProvider.notifier).refreshModels();
+                if (!context.mounted) return;
+                
+                final models = ref.read(localModelsProvider);
+                final file = models.firstWhere(
+                  (f) => f.path.contains(fileName),
+                  orElse: () => models.firstWhere((f) => true), 
+                );
+                ref.read(selectedModelProvider.notifier).state = file;
+                
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Selected model file: $fileName')),
+                );
+                Navigator.pop(context);
+              },
             ),
           // Model list
           Expanded(
@@ -118,7 +134,12 @@ class _ModelBrowserScreenState extends ConsumerState<ModelBrowserScreen> {
                               onTap: isDownloaded
                                   ? () {
                                       final file = localModels.firstWhere(
-                                        (f) => f.path.contains(model.shortId),
+                                        (f) {
+                                          final name = f.path.toLowerCase();
+                                          final id = model.shortId.toLowerCase();
+                                          return name.contains(id);
+                                        },
+                                        orElse: () => localModels.first,
                                       );
                                       ref.read(selectedModelProvider.notifier).state = file;
                                       ScaffoldMessenger.of(context).showSnackBar(
@@ -251,11 +272,13 @@ class _ActiveDownloadsBanner extends StatelessWidget {
   final Map<String, DownloadProgress> downloads;
   final void Function(String fileName) onCancel;
   final void Function(String fileName) onDismiss;
+  final void Function(String fileName) onSelect;
 
   const _ActiveDownloadsBanner({
     required this.downloads,
     required this.onCancel,
     required this.onDismiss,
+    required this.onSelect,
   });
 
   @override
@@ -282,6 +305,7 @@ class _ActiveDownloadsBanner extends StatelessWidget {
                 download: dl,
                 onCancel: () => onCancel(dl.fileName),
                 onDismiss: () => onDismiss(dl.fileName),
+                onSelect: () => onSelect(dl.fileName),
               )),
           const Divider(height: 1),
         ],
@@ -294,11 +318,13 @@ class _DownloadTile extends StatelessWidget {
   final DownloadProgress download;
   final VoidCallback onCancel;
   final VoidCallback onDismiss;
+  final VoidCallback onSelect;
 
   const _DownloadTile({
     required this.download,
     required this.onCancel,
     required this.onDismiss,
+    required this.onSelect,
   });
 
   @override
@@ -352,6 +378,11 @@ class _DownloadTile extends StatelessWidget {
             download.progressText,
             style: theme.textTheme.labelSmall?.copyWith(fontWeight: FontWeight.bold),
           ),
+          if (download.isCompleted)
+            TextButton(
+              onPressed: onSelect,
+              child: const Text('SELECT'),
+            ),
           if (download.isCompleted || download.isFailed)
             IconButton(
               icon: const Icon(Icons.close, size: 18),

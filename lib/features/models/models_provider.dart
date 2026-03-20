@@ -120,13 +120,26 @@ class ActiveDownloadsNotifier extends StateNotifier<Map<String, DownloadProgress
     try {
       await service.downloadModel(modelId, fileName);
       if (!mounted) return;
+      
       // Mark as completed
       state = {
         ...state,
         fileName: state[fileName]!.copyWith(isCompleted: true, progress: 1.0),
       };
+      
       // Refresh local models list
-      _ref.read(localModelsProvider.notifier).refreshModels();
+      await _ref.read(localModelsProvider.notifier).refreshModels();
+      
+      // Auto-select if nothing is currently selected
+      final currentSelected = _ref.read(selectedModelProvider);
+      if (currentSelected == null) {
+        final models = _ref.read(localModelsProvider);
+        final newlyDownloaded = models.firstWhere(
+          (f) => f.path.contains(fileName),
+          orElse: () => models.firstWhere((f) => true),
+        );
+        _ref.read(selectedModelProvider.notifier).state = newlyDownloaded;
+      }
     } catch (e) {
       if (!mounted) return;
       state = {
