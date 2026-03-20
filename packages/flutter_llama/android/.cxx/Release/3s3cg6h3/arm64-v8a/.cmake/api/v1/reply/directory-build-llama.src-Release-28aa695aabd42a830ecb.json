@@ -1,0 +1,14 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : [],
+		"files" : [],
+		"nodes" : []
+	},
+	"installers" : [],
+	"paths" : 
+	{
+		"build" : "build-llama/src",
+		"source" : "/Users/amanvaths/StudioProjects/llama_chat_app/packages/flutter_llama/llama.cpp/src"
+	}
+}

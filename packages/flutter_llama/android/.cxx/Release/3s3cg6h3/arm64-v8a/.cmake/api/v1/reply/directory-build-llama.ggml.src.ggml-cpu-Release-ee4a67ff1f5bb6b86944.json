@@ -1,0 +1,14 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : [],
+		"files" : [],
+		"nodes" : []
+	},
+	"installers" : [],
+	"paths" : 
+	{
+		"build" : "build-llama/ggml/src/ggml-cpu",
+		"source" : "/Users/amanvaths/StudioProjects/llama_chat_app/packages/flutter_llama/llama.cpp/ggml/src/ggml-cpu"
+	}
+}

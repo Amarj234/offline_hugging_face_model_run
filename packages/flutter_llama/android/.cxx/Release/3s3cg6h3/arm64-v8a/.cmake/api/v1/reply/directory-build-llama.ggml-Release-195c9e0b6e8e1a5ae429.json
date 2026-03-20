@@ -1,0 +1,107 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"install"
+		],
+		"files" : 
+		[
+			"/Users/amanvaths/StudioProjects/llama_chat_app/packages/flutter_llama/llama.cpp/ggml/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 339,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 340,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 408,
+				"parent" : 0
+			}
+		]
+	},
+	"installers" : 
+	[
+		{
+			"backtrace" : 1,
+			"component" : "Unspecified",
+			"destination" : "lib",
+			"paths" : 
+			[
+				"bin/libggml.so"
+			],
+			"targetId" : "ggml::@23533c6d68a59d54598d",
+			"targetIndex" : 1,
+			"type" : "target"
+		},
+		{
+			"backtrace" : 1,
+			"component" : "Unspecified",
+			"destination" : "include",
+			"paths" : 
+			[
+				"/Users/amanvaths/StudioProjects/llama_chat_app/packages/flutter_llama/llama.cpp/ggml/include/ggml.h",
+				"/Users/amanvaths/StudioProjects/llama_chat_app/packages/flutter_llama/llama.cpp/ggml/include/ggml-cpu.h",
+				"/Users/amanvaths/StudioProjects/llama_chat_app/packages/flutter_llama/llama.cpp/ggml/include/ggml-alloc.h",
+				"/Users/amanvaths/StudioProjects/llama_chat_app/packages/flutter_llama/llama.cpp/ggml/include/ggml-backend.h",
+				"/Users/amanvaths/StudioProjects/llama_chat_app/packages/flutter_llama/llama.cpp/ggml/include/ggml-blas.h",
+				"/Users/amanvaths/StudioProjects/llama_chat_app/packages/flutter_llama/llama.cpp/ggml/include/ggml-cann.h",
+				"/Users/amanvaths/StudioProjects/llama_chat_app/packages/flutter_llama/llama.cpp/ggml/include/ggml-cpp.h",
+				"/Users/amanvaths/StudioProjects/llama_chat_app/packages/flutter_llama/llama.cpp/ggml/include/ggml-cuda.h",
+				"/Users/amanvaths/StudioProjects/llama_chat_app/packages/flutter_llama/llama.cpp/ggml/include/ggml-opt.h",
+				"/Users/amanvaths/StudioProjects/llama_chat_app/packages/flutter_llama/llama.cpp/ggml/include/ggml-metal.h",
+				"/Users/amanvaths/StudioProjects/llama_chat_app/packages/flutter_llama/llama.cpp/ggml/include/ggml-rpc.h",
+				"/Users/amanvaths/StudioProjects/llama_chat_app/packages/flutter_llama/llama.cpp/ggml/include/ggml-virtgpu.h",
+				"/Users/amanvaths/StudioProjects/llama_chat_app/packages/flutter_llama/llama.cpp/ggml/include/ggml-sycl.h",
+				"/Users/amanvaths/StudioProjects/llama_chat_app/packages/flutter_llama/llama.cpp/ggml/include/ggml-vulkan.h",
+				"/Users/amanvaths/StudioProjects/llama_chat_app/packages/flutter_llama/llama.cpp/ggml/include/ggml-webgpu.h",
+				"/Users/amanvaths/StudioProjects/llama_chat_app/packages/flutter_llama/llama.cpp/ggml/include/ggml-zendnn.h",
+				"/Users/amanvaths/StudioProjects/llama_chat_app/packages/flutter_llama/llama.cpp/ggml/include/ggml-openvino.h",
+				"/Users/amanvaths/StudioProjects/llama_chat_app/packages/flutter_llama/llama.cpp/ggml/include/gguf.h"
+			],
+			"type" : "file"
+		},
+		{
+			"backtrace" : 2,
+			"component" : "Unspecified",
+			"destination" : "lib",
+			"paths" : 
+			[
+				"bin/libggml-base.so"
+			],
+			"targetId" : "ggml-base::@23533c6d68a59d54598d",
+			"targetIndex" : 2,
+			"type" : "target"
+		},
+		{
+			"backtrace" : 3,
+			"component" : "Unspecified",
+			"destination" : "lib/cmake/ggml",
+			"paths" : 
+			[
+				"/Users/amanvaths/StudioProjects/llama_chat_app/packages/flutter_llama/android/.cxx/Release/3s3cg6h3/arm64-v8a/build-llama/ggml/ggml-config.cmake",
+				"/Users/amanvaths/StudioProjects/llama_chat_app/packages/flutter_llama/android/.cxx/Release/3s3cg6h3/arm64-v8a/build-llama/ggml/ggml-version.cmake"
+			],
+			"type" : "file"
+		}
+	],
+	"paths" : 
+	{
+		"build" : "build-llama/ggml",
+		"source" : "/Users/amanvaths/StudioProjects/llama_chat_app/packages/flutter_llama/llama.cpp/ggml"
+	}
+}
