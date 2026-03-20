@@ -36,7 +36,20 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Llama Chat'),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('Llama Chat'),
+            if (selectedModel != null)
+              Text(
+                selectedModel.path.split('/').last,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+              ),
+          ],
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
@@ -46,7 +59,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.download),
+            icon: const Icon(Icons.folder_open),
+            tooltip: 'Models',
             onPressed: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const ModelBrowserScreen()),
