@@ -68,7 +68,7 @@ class FlutterLlamaPlugin : FlutterPlugin, MethodCallHandler, EventChannel.Stream
         when (call.method) {
             "loadModel" -> loadModel(call, result)
             "generate" -> generate(call, result)
-            "generateStream" -> generateStream(call, result)
+            "generateStream", "generateStreamV2" -> generateStreamV2(call, result)
             "unloadModel" -> unloadModel(result)
             "getModelInfo" -> getModelInfo(result)
             "stopGeneration" -> stopGeneration(result)
@@ -219,12 +219,12 @@ class FlutterLlamaPlugin : FlutterPlugin, MethodCallHandler, EventChannel.Stream
 
     // MARK: - Generate Stream
 
-    private fun generateStream(call: MethodCall, result: Result) {
+    private fun generateStreamV2(call: MethodCall, result: Result) {
+        Log.d(TAG, "generateStreamV2: method called (V2_FIXED_ACTIVE)")
         if (!modelLoaded) {
             result.error("MODEL_NOT_LOADED", "Model not loaded (v2_fixed)", null)
             return
         }
-        // Return success immediately so Flutter can start its listener
         result.success(null)
         executor.execute {
             try {

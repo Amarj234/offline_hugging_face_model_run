@@ -132,7 +132,7 @@ class FlutterLlama {
       
       // Trigger generation on native side. 
       // The native side now returns success immediately to avoid race conditions.
-      await _channel.invokeMethod('generateStream', params.toMap());
+      await _channel.invokeMethod('generateStreamV2', params.toMap());
       
       // Yield tokens from the stream
       await for (final token in stream) {
