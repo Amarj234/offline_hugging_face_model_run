@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'hf_api_service.dart';
 import 'models_provider.dart';
+import '../../core/theme.dart';
 
 class ModelBrowserScreen extends ConsumerStatefulWidget {
   const ModelBrowserScreen({super.key});
@@ -45,7 +46,10 @@ class _ModelBrowserScreenState extends ConsumerState<ModelBrowserScreen>
       if (mounted) {
         setState(() => _isSearching = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${e.toString()}')),
+          SnackBar(
+            backgroundColor: Colors.redAccent,
+            content: Text('Search Error: ${e.toString()}'),
+          ),
         );
       }
     }
@@ -55,93 +59,118 @@ class _ModelBrowserScreenState extends ConsumerState<ModelBrowserScreen>
   Widget build(BuildContext context) {
     final localModels = ref.watch(localModelsProvider);
     final activeDownloads = ref.watch(activeDownloadsProvider);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('Models'),
+        title: const Text('EXPLORE MODELS'),
+        backgroundColor: (isDark ? AppTheme.background : Colors.white).withOpacity(0.8),
         bottom: TabBar(
           controller: _tabController,
+          indicatorSize: TabBarIndicatorSize.label,
+          indicatorWeight: 3,
+          indicatorColor: AppTheme.accentPrimary,
+          unselectedLabelColor: isDark ? Colors.white38 : Colors.black38,
+          labelColor: AppTheme.accentPrimary,
+          labelStyle: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1),
           tabs: [
-            const Tab(text: 'LOCAL', icon: Icon(Icons.storage)),
+            const Tab(text: 'LOCAL', icon: Icon(Icons.storage_rounded, size: 20)),
             Tab(
               text: 'DISCOVER',
               icon: Badge(
                 isLabelVisible: _searchResults.isNotEmpty,
-                child: const Icon(Icons.public),
+                backgroundColor: AppTheme.accentSecondary,
+                child: const Icon(Icons.language_rounded, size: 20),
               ),
             ),
           ],
         ),
       ),
-      body: Column(
-        children: [
-          // Global active downloads banner
-          if (activeDownloads.isNotEmpty)
-            _ActiveDownloadsBanner(
-              downloads: activeDownloads,
-              onCancel: (fileName) {
-                ref.read(activeDownloadsProvider.notifier).cancelDownload(fileName);
-              },
-              onDismiss: (fileName) {
-                ref.read(activeDownloadsProvider.notifier).removeCompleted(fileName);
-              },
-              onSelect: (fileName) async {
-                await ref.read(localModelsProvider.notifier).refreshModels();
-                if (!context.mounted) return;
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: isDark 
+            ? const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [AppTheme.background, Color(0xFF161B33)],
+              )
+            : null,
+        ),
+        child: Column(
+          children: [
+            SizedBox(height: MediaQuery.of(context).padding.top + 104), // Space for AppBar + TabBar
+            if (activeDownloads.isNotEmpty)
+              _ActiveDownloadsBanner(
+                downloads: activeDownloads,
+                onCancel: (fileName) {
+                  ref.read(activeDownloadsProvider.notifier).cancelDownload(fileName);
+                },
+                onDismiss: (fileName) {
+                  ref.read(activeDownloadsProvider.notifier).removeCompleted(fileName);
+                },
+                onSelect: (fileName) async {
+                  await ref.read(localModelsProvider.notifier).refreshModels();
+                  if (!context.mounted) return;
 
-                final models = ref.read(localModelsProvider);
-                final file = models.firstWhere(
-                  (f) => f.path.contains(fileName),
-                  orElse: () => models.firstWhere((f) => true),
-                );
-                ref.read(selectedModelProvider.notifier).state = file;
+                  final models = ref.read(localModelsProvider);
+                  final file = models.firstWhere(
+                    (f) => f.path.contains(fileName),
+                    orElse: () => models.firstWhere((f) => true),
+                  );
+                  ref.read(selectedModelProvider.notifier).state = file;
 
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Selected: $fileName')),
-                );
-                Navigator.pop(context);
-              },
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      behavior: SnackBarBehavior.floating,
+                      backgroundColor: AppTheme.accentPrimary,
+                      content: Text('Activated: $fileName'),
+                    ),
+                  );
+                  Navigator.pop(context);
+                },
+              ),
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  // TAB 1: LOCAL MODELS
+                  _LocalModelsList(
+                    models: localModels,
+                    onSelect: (file) {
+                      ref.read(selectedModelProvider.notifier).state = file;
+                      Navigator.pop(context);
+                    },
+                    onDelete: (file) {
+                      _showDeleteConfirm(file);
+                    },
+                  ),
+
+                  // TAB 2: DISCOVER
+                  _DiscoverModelsList(
+                    isLoading: _isSearching,
+                    models: _searchResults,
+                    localModels: localModels,
+                    activeDownloads: activeDownloads,
+                    onDownload: (model) => _showDownloadDialog(model),
+                    onSelect: (model) {
+                      final file = localModels.firstWhere(
+                        (f) {
+                          final name = f.path.toLowerCase();
+                          final id = model.shortId.toLowerCase();
+                          return name.contains(id);
+                        },
+                        orElse: () => localModels.first,
+                      );
+                      ref.read(selectedModelProvider.notifier).state = file;
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              ),
             ),
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                // TAB 1: LOCAL MODELS
-                _LocalModelsList(
-                  models: localModels,
-                  onSelect: (file) {
-                    ref.read(selectedModelProvider.notifier).state = file;
-                    Navigator.pop(context);
-                  },
-                  onDelete: (file) {
-                    _showDeleteConfirm(file);
-                  },
-                ),
-
-                // TAB 2: DISCOVER
-                _DiscoverModelsList(
-                  isLoading: _isSearching,
-                  models: _searchResults,
-                  localModels: localModels,
-                  activeDownloads: activeDownloads,
-                  onDownload: (model) => _showDownloadDialog(model),
-                  onSelect: (model) {
-                    final file = localModels.firstWhere(
-                      (f) {
-                        final name = f.path.toLowerCase();
-                        final id = model.shortId.toLowerCase();
-                        return name.contains(id);
-                      },
-                      orElse: () => localModels.first,
-                    );
-                    ref.read(selectedModelProvider.notifier).state = file;
-                    Navigator.pop(context);
-                  },
-                ),
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -151,19 +180,20 @@ class _ModelBrowserScreenState extends ConsumerState<ModelBrowserScreen>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        backgroundColor: AppTheme.surface,
         title: const Text('Delete Model?'),
-        content: Text('Are you sure you want to delete "$fileName"? This will free up storage space.'),
+        content: Text('Remove "$fileName" safely? This action cannot be undone.', style: const TextStyle(color: AppTheme.textSecondary)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('CANCEL'),
+            child: const Text('KEEP', style: TextStyle(color: AppTheme.textSecondary)),
           ),
-          TextButton(
+          ElevatedButton(
             onPressed: () {
               ref.read(localModelsProvider.notifier).deleteModel(file.path);
               Navigator.pop(context);
             },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
             child: const Text('DELETE'),
           ),
         ],
@@ -177,7 +207,7 @@ class _ModelBrowserScreenState extends ConsumerState<ModelBrowserScreen>
       if (files.isEmpty) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No GGUF files found for this model.')),
+            const SnackBar(content: Text('No compatible GGUF versions found.')),
           );
         }
         return;
@@ -186,46 +216,66 @@ class _ModelBrowserScreenState extends ConsumerState<ModelBrowserScreen>
       if (mounted) {
         showModalBottomSheet(
           context: context,
+          backgroundColor: Colors.transparent,
           builder: (context) {
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Text(
-                    'Select file to download',
-                    style: Theme.of(context).textTheme.titleMedium,
+            return Container(
+              decoration: const BoxDecoration(
+                color: AppTheme.surface,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    margin: const EdgeInsets.symmetric(vertical: 12),
+                    height: 4,
+                    width: 40,
+                    decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(2)),
                   ),
-                ),
-                const Divider(height: 1),
-                Flexible(
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: files.length,
-                    itemBuilder: (context, index) {
-                      final fileName = files[index];
-                      return ListTile(
-                        leading: const Icon(Icons.description_outlined),
-                        title: Text(fileName),
-                        trailing: const Icon(Icons.download),
-                        onTap: () {
-                          ref.read(activeDownloadsProvider.notifier).startDownload(
-                                model.id,
-                                fileName,
-                              );
-                          Navigator.pop(context);
-                          ScaffoldMessenger.of(this.context).showSnackBar(
-                            SnackBar(
-                              content: Text('Download started: $fileName'),
-                              duration: const Duration(seconds: 2),
-                            ),
-                          );
-                        },
-                      );
-                    },
+                  Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Text(
+                      'Select Quantization Version',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                    ),
                   ),
-                ),
-              ],
+                  const Divider(height: 1, color: Colors.white10),
+                  Flexible(
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      padding: const EdgeInsets.only(bottom: 24),
+                      itemCount: files.length,
+                      itemBuilder: (context, index) {
+                        final fileName = files[index];
+                        return ListTile(
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
+                          leading: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(color: Colors.white.withOpacity(0.05), borderRadius: BorderRadius.circular(12)),
+                            child: const Icon(Icons.file_present_rounded, color: AppTheme.accentPrimary),
+                          ),
+                          title: Text(fileName, style: const TextStyle(fontWeight: FontWeight.w500)),
+                          trailing: const Icon(Icons.download_rounded, color: AppTheme.accentPrimary),
+                          onTap: () {
+                            ref.read(activeDownloadsProvider.notifier).startDownload(
+                                  model.id,
+                                  fileName,
+                                );
+                            Navigator.pop(context);
+                            ScaffoldMessenger.of(this.context).showSnackBar(
+                              SnackBar(
+                                behavior: SnackBarBehavior.floating,
+                                backgroundColor: AppTheme.accentPrimary,
+                                content: Text('Download initialized: $fileName'),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
             );
           },
         );
@@ -233,7 +283,7 @@ class _ModelBrowserScreenState extends ConsumerState<ModelBrowserScreen>
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error fetching files: ${e.toString()}')),
+          SnackBar(backgroundColor: Colors.redAccent, content: Text('Error: ${e.toString()}')),
         );
       }
     }
@@ -258,12 +308,11 @@ class _LocalModelsList extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.storage_outlined, size: 64, color: Colors.grey.withValues(alpha: 0.5)),
+            Icon(Icons.auto_awesome_motion_rounded, size: 80, color: Colors.white.withOpacity(0.1)),
             const SizedBox(height: 16),
-            const Text('No downloaded models found'),
+            Text('No models downloaded', style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppTheme.textSecondary)),
             const SizedBox(height: 8),
-            const Text('Go to DISCOVER to find and download models',
-                style: TextStyle(color: Colors.grey, fontSize: 12)),
+            const Text('Switch to Discover to find your first AI model!', style: TextStyle(color: Colors.white24, fontSize: 13)),
           ],
         ),
       );
@@ -271,22 +320,37 @@ class _LocalModelsList extends StatelessWidget {
 
     return ListView.builder(
       itemCount: models.length,
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       itemBuilder: (context, index) {
         final file = models[index];
         final name = file.path.split('/').last;
         final sizeMb = (file.lengthSync() / (1024 * 1024)).toStringAsFixed(1);
 
-        return Card(
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        return Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          decoration: BoxDecoration(
+            color: AppTheme.surface,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: Colors.white.withOpacity(0.05)),
+          ),
           child: ListTile(
-            leading: const CircleAvatar(
-              child: Icon(Icons.description),
+            contentPadding: const EdgeInsets.all(16),
+            leading: Container(
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(colors: [AppTheme.accentPrimary, AppTheme.accentSecondary]),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: const Icon(Icons.psychology_rounded, color: Colors.white),
             ),
-            title: Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
-            subtitle: Text('Size: $sizeMb MB\nFormat: GGUF'),
+            title: Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            subtitle: Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text('$sizeMb MB • GGUF', style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
+            ),
             trailing: IconButton(
-              icon: const Icon(Icons.delete_outline, color: Colors.red),
+              icon: const Icon(Icons.delete_outline_rounded, color: Colors.redAccent),
               onPressed: () => onDelete(file),
             ),
             onTap: () => onSelect(file),
@@ -317,11 +381,21 @@ class _DiscoverModelsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const CircularProgressIndicator(color: AppTheme.accentPrimary),
+            const SizedBox(height: 24),
+            Text('Searching HuggingFace...', style: TextStyle(color: AppTheme.textSecondary, letterSpacing: 1)),
+          ],
+        ),
+      );
     }
 
     return ListView.builder(
       itemCount: models.length,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       itemBuilder: (context, index) {
         final model = models[index];
         final isDownloaded = localModels.any(
@@ -331,32 +405,52 @@ class _DiscoverModelsList extends StatelessWidget {
             .where((d) => d.modelId == model.id && !d.isCompleted && !d.isFailed)
             .toList();
 
-        return Card(
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        return Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          decoration: BoxDecoration(
+            color: AppTheme.surface,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: Colors.white.withOpacity(0.05)),
+          ),
           child: Column(
             children: [
               ListTile(
+                contentPadding: const EdgeInsets.all(16),
                 title: Text(model.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                subtitle: Text('Author: ${model.author}\nDownloads: ${model.downloads}'),
-                isThreeLine: true,
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 4),
+                    Text('by ${model.author}', style: const TextStyle(color: AppTheme.accentPrimary, fontSize: 12, fontWeight: FontWeight.w600)),
+                    Text('${model.downloads} downloads', style: const TextStyle(color: AppTheme.textSecondary, fontSize: 11)),
+                  ],
+                ),
                 trailing: isDownloaded
-                    ? const Icon(Icons.check_circle, color: Colors.green)
+                    ? Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(color: Colors.green.withOpacity(0.1), borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.green.withOpacity(0.2))),
+                        child: const Text('READY', style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 10)),
+                      )
                     : downloading.isNotEmpty
-                        ? SizedBox(
-                            width: 32,
-                            height: 32,
-                            child: CircularProgressIndicator(value: downloading.first.progress, strokeWidth: 2),
-                          )
+                        ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.accentPrimary))
                         : IconButton(
-                            icon: const Icon(Icons.download),
+                            icon: const Icon(Icons.download_for_offline_rounded, color: AppTheme.accentPrimary, size: 28),
                             onPressed: () => onDownload(model),
                           ),
                 onTap: isDownloaded ? () => onSelect(model) : null,
               ),
               if (downloading.isNotEmpty)
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                  child: LinearProgressIndicator(value: downloading.first.progress),
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: LinearProgressIndicator(
+                      value: downloading.first.progress,
+                      backgroundColor: Colors.white.withOpacity(0.05),
+                      color: AppTheme.accentPrimary,
+                      minHeight: 6,
+                    ),
+                  ),
                 ),
             ],
           ),
@@ -381,31 +475,41 @@ class _ActiveDownloadsBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final activeList = downloads.values.toList();
 
     return Container(
-      color: theme.colorScheme.primaryContainer.withValues(alpha: 0.3),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppTheme.accentPrimary.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppTheme.accentPrimary.withOpacity(0.1)),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-            child: Text(
-              'Downloads',
-              style: theme.textTheme.labelLarge?.copyWith(
-                color: theme.colorScheme.primary,
-                fontWeight: FontWeight.bold,
+          Row(
+            children: [
+              const Icon(Icons.cloud_download_outlined, color: AppTheme.accentPrimary, size: 18),
+              const SizedBox(width: 8),
+              Text(
+                'LIVE DOWNLOADS',
+                style: TextStyle(
+                  color: AppTheme.accentPrimary,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1,
+                  fontSize: 11,
+                ),
               ),
-            ),
+            ],
           ),
+          const SizedBox(height: 12),
           ...activeList.map((dl) => _DownloadTile(
                 download: dl,
                 onCancel: () => onCancel(dl.fileName),
                 onDismiss: () => onDismiss(dl.fileName),
                 onSelect: () => onSelect(dl.fileName),
               )),
-          const Divider(height: 1),
         ],
       ),
     );
@@ -427,62 +531,55 @@ class _DownloadTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    IconData icon;
-    Color iconColor;
-    if (download.isCompleted) {
-      icon = Icons.check_circle;
-      iconColor = Colors.green;
-    } else if (download.isFailed) {
-      icon = Icons.error;
-      iconColor = Colors.red;
-    } else {
-      icon = Icons.downloading;
-      iconColor = theme.colorScheme.primary;
-    }
+    bool isError = download.isFailed;
+    bool isDone = download.isCompleted;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      child: Row(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Column(
         children: [
-          Icon(icon, color: iconColor, size: 20),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
+          Row(
+            children: [
+              Expanded(
+                child: Text(
                   download.fileName,
-                  style: theme.textTheme.bodySmall,
+                  style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13),
                   overflow: TextOverflow.ellipsis,
                 ),
-                if (!download.isCompleted && !download.isFailed)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: LinearProgressIndicator(value: download.progress, minHeight: 4),
+              ),
+              if (isDone)
+                TextButton(
+                  onPressed: onSelect,
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+                    backgroundColor: AppTheme.accentPrimary.withOpacity(0.1),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   ),
-              ],
-            ),
+                  child: const Text('SELECT', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                ),
+              IconButton(
+                icon: Icon(
+                  isDone || isError ? Icons.close_rounded : Icons.cancel_rounded,
+                  size: 18,
+                  color: isError ? Colors.redAccent : AppTheme.textSecondary,
+                ),
+                onPressed: isDone || isError ? onDismiss : onCancel,
+                visualDensity: VisualDensity.compact,
+              ),
+            ],
           ),
-          const SizedBox(width: 8),
-          if (download.isCompleted)
-            TextButton(
-              onPressed: onSelect,
-              child: const Text('SELECT'),
+          if (!isDone && !isError)
+            ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: LinearProgressIndicator(
+                value: download.progress,
+                minHeight: 4,
+                backgroundColor: Colors.white.withOpacity(0.05),
+                color: AppTheme.accentPrimary,
+              ),
             ),
-          if (download.isCompleted || download.isFailed)
-            IconButton(
-              icon: const Icon(Icons.close, size: 18),
-              onPressed: onDismiss,
-              visualDensity: VisualDensity.compact,
-            )
-          else
-            IconButton(
-              icon: const Icon(Icons.cancel_outlined, size: 18),
-              onPressed: onCancel,
-              visualDensity: VisualDensity.compact,
-            ),
+          if (isError)
+            const Text('Download failed. Check connection.', style: TextStyle(color: Colors.redAccent, fontSize: 10)),
         ],
       ),
     );
