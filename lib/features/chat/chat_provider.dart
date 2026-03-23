@@ -163,8 +163,9 @@ class ChatNotifier extends StateNotifier<ChatState> {
 
       String responseText;
       try {
+        final formattedPrompt = template.formatPrompt(text);
         responseText = await _llamaService.generateResponse(
-          text,
+          formattedPrompt,
           temperature: settings.temperature,
           maxTokens: 128,
           topP: settings.topP,

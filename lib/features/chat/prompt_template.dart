@@ -20,7 +20,7 @@ class PromptTemplate {
   }
 
   String formatPrompt(String userMessage, {String? systemPrompt}) {
-    final system = systemPrompt ?? "You are a helpful AI assistant.";
+    final system = systemPrompt ?? "AI Assistant.";
     
     switch (format) {
       case PromptFormat.phi3:
