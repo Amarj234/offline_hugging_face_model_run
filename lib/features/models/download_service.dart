@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:dio/dio.dart';
 import '../../core/utils/file_manager.dart';
 
@@ -70,9 +71,19 @@ class DownloadService {
     downloadModel(modelId, fileName);
   }
 
-  void cancelDownload(String fileName) {
-    _tasks[fileName]?.cancelToken?.cancel('cancelled');
-    _tasks.remove(fileName);
+  Future<void> cancelDownload(String fileName) async {
+    final task = _tasks[fileName];
+    if (task != null) {
+      task.cancelToken?.cancel('cancelled');
+      _tasks.remove(fileName);
+      
+      // Delete partial file
+      final path = await FileManager.getModelPath(fileName);
+      final file = File(path);
+      if (await file.exists()) {
+        await file.delete();
+      }
+    }
   }
 
   DownloadTask? getTask(String fileName) => _tasks[fileName];

@@ -6,11 +6,12 @@ import '../../core/utils/file_manager.dart';
 import 'download_service.dart';
 
 final localModelsProvider = StateNotifierProvider<LocalModelsNotifier, List<File>>((ref) {
-  return LocalModelsNotifier();
+  return LocalModelsNotifier(ref);
 });
 
 class LocalModelsNotifier extends StateNotifier<List<File>> {
-  LocalModelsNotifier() : super([]) {
+  final Ref _ref;
+  LocalModelsNotifier(this._ref) : super([]) {
     refreshModels();
   }
 
@@ -20,6 +21,12 @@ class LocalModelsNotifier extends StateNotifier<List<File>> {
   }
 
   Future<void> deleteModel(String filePath) async {
+    // Clear selection if this is the selected model
+    final selectedNotifier = _ref.read(selectedModelProvider.notifier);
+    if (selectedNotifier.state?.path == filePath) {
+      await selectedNotifier.selectModel(null);
+    }
+    
     await FileManager.deleteModel(filePath);
     await refreshModels();
   }

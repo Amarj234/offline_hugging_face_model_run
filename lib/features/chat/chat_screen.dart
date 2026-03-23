@@ -73,7 +73,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'LLAMA CHAT',
+              'AI CHAT OFFLINE',
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w800,
