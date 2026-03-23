@@ -405,7 +405,7 @@ class _ChatInput extends StatelessWidget {
   final Function(String) onSend;
 
   const _ChatInput({
-    required this.controller, 
+    required this.controller,
     required this.isGenerating,
     required this.onStop,
     required this.onSend,
@@ -414,23 +414,29 @@ class _ChatInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
         color: Colors.transparent,
         border: Border(
-          top: BorderSide(color: Colors.white.withOpacity(0.05), width: 1),
+          top: BorderSide(
+            color: Colors.white.withOpacity(0.05),
+            width: 1,
+          ),
         ),
       ),
       child: SafeArea(
+        top: false, // ✅ remove extra top space
         child: Row(
           children: [
             Expanded(
               child: Container(
                 decoration: BoxDecoration(
-                  color: isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.05),
-                  borderRadius: BorderRadius.circular(28),
+                  color: isDark
+                      ? Colors.white.withOpacity(0.05)
+                      : Colors.black.withOpacity(0.05),
+                  borderRadius: BorderRadius.circular(24),
                   border: Border.all(
                     color: Colors.white.withOpacity(0.1),
                     width: 1,
@@ -438,13 +444,22 @@ class _ChatInput extends StatelessWidget {
                 ),
                 child: TextField(
                   controller: controller,
-                  style: TextStyle(color: isDark ? Colors.white : Colors.black87),
+                  minLines: 1,
+                  maxLines: 3, // ✅ prevents extra height
+                  style: TextStyle(
+                    color: isDark ? Colors.white : Colors.black87,
+                  ),
                   decoration: InputDecoration(
+                    isDense: true, // ✅ reduces height
                     hintText: 'Ask Llama anything...',
-                    hintStyle: TextStyle(color: isDark ? Colors.white54 : Colors.black45),
+                    hintStyle: TextStyle(
+                      color: isDark ? Colors.white54 : Colors.black45,
+                    ),
                     border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                    fillColor: Colors.transparent, // Overriding theme
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 10, // ✅ reduced vertical padding
+                    ),
                   ),
                   textInputAction: TextInputAction.send,
                   onSubmitted: (value) {
@@ -453,32 +468,45 @@ class _ChatInput extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 8),
+
+            /// Button
             isGenerating
                 ? Container(
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.redAccent,
-                      ),
-                      child: IconButton(
-                        icon: const Icon(Icons.stop_rounded, color: Colors.white),
-                        onPressed: onStop,
-                      ),
-                    )
-                  : Container(
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: LinearGradient(
-                          colors: [AppTheme.accentPrimary, AppTheme.accentSecondary],
-                        ),
-                      ),
-                      child: IconButton(
-                        icon: const Icon(Icons.send_rounded, color: Colors.white),
-                        onPressed: () {
-                          if (controller.text.isNotEmpty) onSend(controller.text);
-                        },
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.redAccent,
+                    ),
+                    child: IconButton(
+                      icon: const Icon(Icons.stop_rounded,
+                          color: Colors.white),
+                      onPressed: onStop,
+                      padding: const EdgeInsets.all(10), // ✅ smaller button
+                      constraints: const BoxConstraints(),
+                    ),
+                  )
+                : Container(
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        colors: [
+                          AppTheme.accentPrimary,
+                          AppTheme.accentSecondary
+                        ],
                       ),
                     ),
+                    child: IconButton(
+                      icon: const Icon(Icons.send_rounded,
+                          color: Colors.white),
+                      onPressed: () {
+                        if (controller.text.isNotEmpty) {
+                          onSend(controller.text);
+                        }
+                      },
+                      padding: const EdgeInsets.all(10), // ✅ smaller button
+                      constraints: const BoxConstraints(),
+                    ),
+                  ),
           ],
         ),
       ),
