@@ -16,4 +16,9 @@ class AppConstants {
 
   // Hugging Face GGUF search query
   static const String hfGgufSearchQuery = 'gguf';
+
+  // Recommended small model for budget devices
+  static const String recommendedModelId = 'TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF';
+  static const String recommendedModelFile = 'tinyllama-1.1b-chat-v1.0.Q2_K.gguf';
+  static const String recommendedModelName = 'TinyLlama 1.1B (Q2_K)';
 }

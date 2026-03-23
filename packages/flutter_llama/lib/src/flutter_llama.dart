@@ -124,21 +124,35 @@ class FlutterLlama {
         print('[FlutterLlama] Streaming generation with params: $params');
       }
 
-      // Set up event channel for streaming
+      // Setup event channel and start listening BEFORE triggering generation
+      // to avoid race conditions where tokens are sent before we start listening.
       final eventChannel = EventChannel('flutter_llama/stream');
-      
-      // Start listening to the stream
       final stream = eventChannel.receiveBroadcastStream();
       
-      // Trigger generation on native side. 
-      // The native side now returns success immediately to avoid race conditions.
-      await _channel.invokeMethod('generateStreamV2', params.toMap());
-      
-      // Yield tokens from the stream
-      await for (final token in stream) {
-        if (token is String) {
-          yield token;
-        }
+      final controller = StreamController<String>();
+      final subscription = stream.listen(
+        (token) {
+          if (token is String) {
+            controller.add(token);
+          }
+        },
+        onError: (error) {
+          controller.addError(error);
+        },
+        onDone: () {
+          controller.close();
+        },
+        cancelOnError: true,
+      );
+
+      try {
+        // Trigger generation on native side. 
+        await _channel.invokeMethod('generateStreamV2', params.toMap());
+        
+        // Yield tokens from our controller stream
+        yield* controller.stream;
+      } finally {
+        await subscription.cancel();
       }
     } catch (e) {
       if (kDebugMode) {

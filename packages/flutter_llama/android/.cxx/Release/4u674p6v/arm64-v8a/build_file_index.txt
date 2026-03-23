@@ -1,0 +1,6 @@
+/Users/macbookair/StudioProjects/offline_hugging_face_model_run/packages/flutter_llama/android/src/main/cpp/CMakeLists.txt
+/Users/macbookair/StudioProjects/offline_hugging_face_model_run/packages/flutter_llama/llama.cpp/CMakeLists.txt
+/Users/macbookair/StudioProjects/offline_hugging_face_model_run/packages/flutter_llama/llama.cpp/ggml/CMakeLists.txt
+/Users/macbookair/StudioProjects/offline_hugging_face_model_run/packages/flutter_llama/llama.cpp/ggml/src/CMakeLists.txt
+/Users/macbookair/StudioProjects/offline_hugging_face_model_run/packages/flutter_llama/llama.cpp/ggml/src/ggml-cpu/CMakeLists.txt
+/Users/macbookair/StudioProjects/offline_hugging_face_model_run/packages/flutter_llama/llama.cpp/src/CMakeLists.txt

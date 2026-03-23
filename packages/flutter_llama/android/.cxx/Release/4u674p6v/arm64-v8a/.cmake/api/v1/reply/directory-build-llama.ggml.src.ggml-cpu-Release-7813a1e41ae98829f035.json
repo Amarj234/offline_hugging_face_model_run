@@ -1,0 +1,14 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : [],
+		"files" : [],
+		"nodes" : []
+	},
+	"installers" : [],
+	"paths" : 
+	{
+		"build" : "build-llama/ggml/src/ggml-cpu",
+		"source" : "/Users/macbookair/StudioProjects/offline_hugging_face_model_run/packages/flutter_llama/llama.cpp/ggml/src/ggml-cpu"
+	}
+}

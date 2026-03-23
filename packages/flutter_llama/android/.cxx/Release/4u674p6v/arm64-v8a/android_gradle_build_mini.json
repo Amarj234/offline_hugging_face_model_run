@@ -1,0 +1,70 @@
+{
+  "buildFiles": [
+    "/Users/macbookair/StudioProjects/offline_hugging_face_model_run/packages/flutter_llama/android/src/main/cpp/CMakeLists.txt",
+    "/Users/macbookair/StudioProjects/offline_hugging_face_model_run/packages/flutter_llama/llama.cpp/CMakeLists.txt",
+    "/Users/macbookair/StudioProjects/offline_hugging_face_model_run/packages/flutter_llama/llama.cpp/ggml/CMakeLists.txt",
+    "/Users/macbookair/StudioProjects/offline_hugging_face_model_run/packages/flutter_llama/llama.cpp/ggml/src/CMakeLists.txt",
+    "/Users/macbookair/StudioProjects/offline_hugging_face_model_run/packages/flutter_llama/llama.cpp/ggml/src/ggml-cpu/CMakeLists.txt",
+    "/Users/macbookair/StudioProjects/offline_hugging_face_model_run/packages/flutter_llama/llama.cpp/src/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/Users/macbookair/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/Users/macbookair/StudioProjects/offline_hugging_face_model_run/packages/flutter_llama/android/.cxx/Release/4u674p6v/arm64-v8a",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/Users/macbookair/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/Users/macbookair/StudioProjects/offline_hugging_face_model_run/packages/flutter_llama/android/.cxx/Release/4u674p6v/arm64-v8a",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {
+    "flutter_llama_bridge::@6890427a1f51a3e7e1df": {
+      "artifactName": "flutter_llama_bridge",
+      "abi": "arm64-v8a",
+      "output": "/Users/macbookair/StudioProjects/offline_hugging_face_model_run/build/flutter_llama/intermediates/cxx/Release/4u674p6v/obj/arm64-v8a/libflutter_llama_bridge.so",
+      "runtimeFiles": [
+        "/Users/macbookair/StudioProjects/offline_hugging_face_model_run/packages/flutter_llama/android/.cxx/Release/4u674p6v/arm64-v8a/bin/libllama.so",
+        "/Users/macbookair/StudioProjects/offline_hugging_face_model_run/packages/flutter_llama/android/.cxx/Release/4u674p6v/arm64-v8a/bin/libggml.so",
+        "/Users/macbookair/StudioProjects/offline_hugging_face_model_run/packages/flutter_llama/android/.cxx/Release/4u674p6v/arm64-v8a/bin/libggml-cpu.so",
+        "/Users/macbookair/StudioProjects/offline_hugging_face_model_run/packages/flutter_llama/android/.cxx/Release/4u674p6v/arm64-v8a/bin/libggml-base.so"
+      ]
+    },
+    "ggml::@23533c6d68a59d54598d": {
+      "artifactName": "ggml",
+      "abi": "arm64-v8a",
+      "output": "/Users/macbookair/StudioProjects/offline_hugging_face_model_run/packages/flutter_llama/android/.cxx/Release/4u674p6v/arm64-v8a/bin/libggml.so",
+      "runtimeFiles": [
+        "/Users/macbookair/StudioProjects/offline_hugging_face_model_run/packages/flutter_llama/android/.cxx/Release/4u674p6v/arm64-v8a/bin/libggml-cpu.so",
+        "/Users/macbookair/StudioProjects/offline_hugging_face_model_run/packages/flutter_llama/android/.cxx/Release/4u674p6v/arm64-v8a/bin/libggml-base.so"
+      ]
+    },
+    "llama::@b791850eb95f38641ccb": {
+      "artifactName": "llama",
+      "abi": "arm64-v8a",
+      "output": "/Users/macbookair/StudioProjects/offline_hugging_face_model_run/packages/flutter_llama/android/.cxx/Release/4u674p6v/arm64-v8a/bin/libllama.so",
+      "runtimeFiles": [
+        "/Users/macbookair/StudioProjects/offline_hugging_face_model_run/packages/flutter_llama/android/.cxx/Release/4u674p6v/arm64-v8a/bin/libggml.so",
+        "/Users/macbookair/StudioProjects/offline_hugging_face_model_run/packages/flutter_llama/android/.cxx/Release/4u674p6v/arm64-v8a/bin/libggml-cpu.so",
+        "/Users/macbookair/StudioProjects/offline_hugging_face_model_run/packages/flutter_llama/android/.cxx/Release/4u674p6v/arm64-v8a/bin/libggml-base.so"
+      ]
+    },
+    "ggml-cpu::@23533c6d68a59d54598d": {
+      "artifactName": "ggml-cpu",
+      "abi": "arm64-v8a",
+      "output": "/Users/macbookair/StudioProjects/offline_hugging_face_model_run/packages/flutter_llama/android/.cxx/Release/4u674p6v/arm64-v8a/bin/libggml-cpu.so",
+      "runtimeFiles": [
+        "/Users/macbookair/StudioProjects/offline_hugging_face_model_run/packages/flutter_llama/android/.cxx/Release/4u674p6v/arm64-v8a/bin/libggml-base.so"
+      ]
+    },
+    "ggml-base::@23533c6d68a59d54598d": {
+      "artifactName": "ggml-base",
+      "abi": "arm64-v8a",
+      "output": "/Users/macbookair/StudioProjects/offline_hugging_face_model_run/packages/flutter_llama/android/.cxx/Release/4u674p6v/arm64-v8a/bin/libggml-base.so",
+      "runtimeFiles": []
+    }
+  }
+}

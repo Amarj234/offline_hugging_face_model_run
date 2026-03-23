@@ -4,14 +4,12 @@ import '../../core/constants.dart';
 
 class LlamaService {
   final FlutterLlama _llama = FlutterLlama.instance;
-  final StreamController<String> _responseController = StreamController<String>.broadcast();
-  Stream<String> get responseStream => _responseController.stream;
   bool _isModelLoaded = false;
   String? _currentModelPath;
 
   bool get isModelLoaded => _isModelLoaded;
 
-  Future<bool> loadModel(String path, {int? threads}) async {
+  Future<bool> loadModel(String path, {int? threads, int? contextSize, int? batchSize}) async {
     // Skip reload if same model is already loaded
     if (_isModelLoaded && _currentModelPath == path) {
       return true;
@@ -27,11 +25,12 @@ class LlamaService {
     final success = await _llama.loadModel(
       LlamaConfig(
         modelPath: path,
-        nThreads: threads ?? 4,
+        nThreads: threads ?? 2,
         nGpuLayers: 0,
-        contextSize: 2048,
-        batchSize: 512,
+        contextSize: contextSize ?? 512,
+        batchSize: batchSize ?? 64,
         useGpu: false,
+        verbose: true,
       ),
     );
 
@@ -46,23 +45,33 @@ class LlamaService {
     await _llama.stopGeneration();
   }
 
-  Future<void> generateResponse(
+  /// Generate a response and return the text directly.
+  /// Returns the generated text, or an error message string.
+  Future<String> generateResponse(
     String prompt, {
     double? temperature,
     int? maxTokens,
     double? topP,
+    List<String>? stopSequences,
   }) async {
     final params = GenerationParams(
       prompt: prompt,
       temperature: temperature ?? AppConstants.defaultTemperature,
       maxTokens: maxTokens ?? AppConstants.defaultMaxTokens,
       topP: topP ?? AppConstants.defaultTopP,
+      stopSequences: stopSequences ?? [],
     );
 
-    String accumulated = '';
-    await for (final token in _llama.generateStream(params)) {
-      accumulated += token;
-      _responseController.add(accumulated);
+    try {
+      final result = await _llama.generate(params);
+      
+      if (result.text.isNotEmpty) {
+        return result.text;
+      } else {
+        return '(No response generated. Try a different prompt or a smaller model.)';
+      }
+    } catch (e) {
+      return 'Error generating response: ${e.toString()}';
     }
   }
 
@@ -72,6 +81,5 @@ class LlamaService {
       _isModelLoaded = false;
       _currentModelPath = null;
     }
-    await _responseController.close();
   }
 }
