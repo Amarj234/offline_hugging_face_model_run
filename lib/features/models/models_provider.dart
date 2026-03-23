@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/utils/file_manager.dart';
 import 'download_service.dart';
 
@@ -24,16 +25,50 @@ class LocalModelsNotifier extends StateNotifier<List<File>> {
   }
 }
 
-final selectedModelProvider = StateProvider<File?>((ref) => null);
+final selectedModelProvider = StateNotifierProvider<SelectedModelNotifier, File?>((ref) {
+  return SelectedModelNotifier(ref);
+});
 
-// Shared download service provider
+class SelectedModelNotifier extends StateNotifier<File?> {
+  final Ref _ref;
+  static const _key = 'selected_model_path';
+
+  SelectedModelNotifier(this._ref) : super(null) {
+    _loadModel();
+  }
+
+  Future<void> _loadModel() async {
+    final prefs = await SharedPreferences.getInstance();
+    final path = prefs.getString(_key);
+    if (path != null && File(path).existsSync()) {
+      state = File(path);
+    } else {
+      // If the saved model doesn't exist anymore, wait for local models to load and select first available
+      await _ref.read(localModelsProvider.notifier).refreshModels();
+      final models = _ref.read(localModelsProvider);
+      if (models.isNotEmpty) {
+        selectModel(models.first);
+      }
+    }
+  }
+
+  Future<void> selectModel(File? file) async {
+    state = file;
+    final prefs = await SharedPreferences.getInstance();
+    if (file != null) {
+      await prefs.setString(_key, file.path);
+    } else {
+      await prefs.remove(_key);
+    }
+  }
+}
+
 final downloadServiceProvider = Provider((ref) => DownloadService());
 
-// Active downloads state: fileName -> DownloadProgress
 class DownloadProgress {
   final String fileName;
   final String modelId;
-  final double progress; // 0.0 to 1.0
+  final double progress;
   final bool isPaused;
   final bool isCompleted;
   final bool isFailed;
@@ -107,7 +142,6 @@ class ActiveDownloadsNotifier extends StateNotifier<Map<String, DownloadProgress
   Future<void> startDownload(String modelId, String fileName) async {
     final service = _ref.read(downloadServiceProvider);
 
-    // Mark as started
     state = {
       ...state,
       fileName: DownloadProgress(
@@ -121,16 +155,13 @@ class ActiveDownloadsNotifier extends StateNotifier<Map<String, DownloadProgress
       await service.downloadModel(modelId, fileName);
       if (!mounted) return;
       
-      // Mark as completed
       state = {
         ...state,
         fileName: state[fileName]!.copyWith(isCompleted: true, progress: 1.0),
       };
       
-      // Refresh local models list
       await _ref.read(localModelsProvider.notifier).refreshModels();
       
-      // Auto-select if nothing is currently selected
       final currentSelected = _ref.read(selectedModelProvider);
       if (currentSelected == null) {
         final models = _ref.read(localModelsProvider);
@@ -138,7 +169,7 @@ class ActiveDownloadsNotifier extends StateNotifier<Map<String, DownloadProgress
           (f) => f.path.contains(fileName),
           orElse: () => models.firstWhere((f) => true),
         );
-        _ref.read(selectedModelProvider.notifier).state = newlyDownloaded;
+        _ref.read(selectedModelProvider.notifier).selectModel(newlyDownloaded);
       }
     } catch (e) {
       if (!mounted) return;
